@@ -1,0 +1,23 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "A bill Splitting Web App ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pankaj-j-ux/bill-splitter-backend.git"
+  },
+  "keywords": [
+    "[\"bill",
+    "Splitter\"]"
+  ],
+  "author": "[\"Pankaj\",\"Tanishtha\",\"Krishna\"]",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pankaj-j-ux/bill-splitter-backend/issues"
+  },
+  "homepage": "https://github.com/Pankaj-j-ux/bill-splitter-backend#readme"
+}
