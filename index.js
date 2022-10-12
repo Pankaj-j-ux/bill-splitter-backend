@@ -23,7 +23,7 @@ app.use(cors());
 app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
-    msg: "You'r Welcome !",
+    msg: "You Welcome !",
   });
 });
 
