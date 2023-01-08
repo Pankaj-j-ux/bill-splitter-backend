@@ -175,7 +175,7 @@ exports.groupdetail = async (req, res, next) => {
 
     // const expenseOfIndividuals = await promise;
 
-    sqlQuery = `select Users.id,Users.uname,Users.photo1,sum(Bills.amn) as groupTotalExpense,(select sum(amn) from Bills where paidgid=${gid} and paidby=${user}) as myTotalExpense from Bills inner join Users on Bills.paidby=Users.id where paidgid=${gid};`;
+    sqlQuery = `select Users.id,Users.uname,Users.photo1,sum(Bills.amn) as groupTotalExpense,(select sum(amn) from Bills where paidgid=${gid} and paidby=${user}) as myTotalExpense from Bills inner join Users on Bills.paidby=Users.id where paidgid=${gid} GROUP BY Users.id;`;
     promise = new Promise((resolve, reject) => {
       dbconnection.query(sqlQuery, (err, result) => {
         if (err) reject(err);

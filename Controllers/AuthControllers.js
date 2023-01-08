@@ -7,7 +7,7 @@ const { encryptPassword, isValidPass } = require("../Utilities/passUtils");
 exports.signup = async (req, res, next) => {
   const { firstname, lastname, email, gender } = req.body;
   let { upassword } = req.body;
-  console.log(req.body);
+  // console.log(req.body);
   try {
     if (!(firstname && lastname && email && gender && upassword)) {
       throw Error("Credentials missing");
