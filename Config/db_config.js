@@ -1,6 +1,5 @@
-/** @format */
 
-const mysql = require("mysql");
+const mysql = require("mysql2");
 
 const option = {
   host: process.env.DB_HOST,
@@ -11,36 +10,28 @@ const option = {
   connectionLimit: 10,
 };
 
-try {
-  const pool = mysql.createPool(option);
-  module.exports = pool;
-  console.log("DB connected on ", process.env.DB_PORT, " ", process.env.DB_HOST);
-  
-} catch (err) {
-  console.log("ERROR FROM DB_CONFIG :: ", err.message);
-  console.log(err);
+const connection = mysql.createConnection({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_DB,
+  // authSwitchHandler: function ({ pluginName, pluginData }, cb) {
+  //   if (pluginName === 'caching_sha2_password') {
+  //     // Use mysql_native_password as the authentication plugin
+  //     cb(null, Buffer.from([1]));
+  //   } else {
+  //     cb(new Error(`Unsupported auth plugin: ${pluginName}`));
+  //   }
+  // }
+});
 
-  res.status(500).json({
-    success: false,
-    msg: err.message,
-  });
-}
+connection.connect(function(err) {
+  if (err) {
+    console.error('Error connecting: ' + err.stack);
+    return;
+  }
+  console.log('Connected as id ' + connection.threadId);
+});
 
-// try {
-// const connection = mysql.createConnection(option);
-
-// connection.connect((err) => {
-//   if (err) {
-//     throw err;
-//   } else {
-//     console.log(
-//       `DB_CONNECTED ~ PORT@${process.env.DB_PORT} ~ endpoint@${process.env.DB_HOST}...`
-//     );
-//   }
-// });
-
-// module.exports = connection;
-// } catch (err) {
-//   console.log("ERROR FROM DB_CONFIG :: ", err.message);
-//   console.log(err);
-// }
+module.exports = connection;
