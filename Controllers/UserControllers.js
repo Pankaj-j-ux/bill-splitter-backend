@@ -7,9 +7,9 @@ exports.dashboard = async (req, res, next) => {
   try {
     const user = req.user;
 
-    let sqlQuery = `select Group_info.id, Group_info.gname ,Group_info.Created_at from  Group_info  inner join User_groups on Group_info.id =User_groups.gid where uid= ${user.id}`;
+    let sqlQuery = `select Group_info.id, Group_info.gname ,Group_info.Created_at from  Group_info  inner join User_groups on Group_info.id =User_groups.gid where uid= ?`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery, [user.id], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -45,9 +45,9 @@ exports.creategroup = async (req, res, next) => {
     if (!groupname) {
       throw Error("No data present");
     }
-    let sqlQuery = `insert into Group_info(gname,admin1) values("${groupname}", "${req.user.id}");`;
+    let sqlQuery = `insert into Group_info(gname,admin1) values(?, ?);`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[groupname, req.user.id ], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -55,9 +55,9 @@ exports.creategroup = async (req, res, next) => {
 
     const result = await promise;
 
-    sqlQuery = `Select * from Group_info where id = ${result.insertId}`;
+    sqlQuery = `Select * from Group_info where id = ?`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery, [ result.insertId ], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -65,9 +65,9 @@ exports.creategroup = async (req, res, next) => {
 
     const result2 = await promise;
 
-    sqlQuery = `insert into User_groups(uid,gid) values("${req.user.id}","${result.insertId}");`;
+    sqlQuery = `insert into User_groups(uid,gid) values(?,?);`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[req.user.id, result.insertId], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -101,9 +101,9 @@ exports.changegroupname = async (req, res, next) => {
       throw Error("New Group Name is required");
     }
 
-    let sqlQuery = `Update Group_info SET gname = "${gname}" WHERE id = ${gid};`;
+    let sqlQuery = `Update Group_info SET gname = ? WHERE id = ?;`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gname,gid], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -136,9 +136,9 @@ exports.groupdetail = async (req, res, next) => {
 
     // const groupAdmin = await promise;
 
-    let sqlQuery = `SELECT User_groups.uid, Users.uname, Users.gender, Users.email, Users.contact, Users.photo1 from User_groups INNER JOIN Users ON User_groups.uid = Users.id WHERE User_groups.gid = ${gid};`;
+    let sqlQuery = `SELECT User_groups.uid, Users.uname, Users.gender, Users.email, Users.contact, Users.photo1 from User_groups INNER JOIN Users ON User_groups.uid = Users.id WHERE User_groups.gid = ?;`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery, [gid], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -146,9 +146,9 @@ exports.groupdetail = async (req, res, next) => {
 
     const groupMembers = await promise;
 
-    sqlQuery = `SELECT * from Group_info WHERE id = ${gid};`;
+    sqlQuery = `SELECT * from Group_info WHERE id = ?;`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gid], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -176,9 +176,9 @@ exports.groupdetail = async (req, res, next) => {
 
     // const expenseOfIndividuals = await promise;
 
-    sqlQuery = `select Users.id,Users.uname,Users.photo1,sum(Bills.amn) as groupTotalExpense,(select sum(amn) from Bills where paidgid=${gid} and paidby=${user}) as myTotalExpense from Bills inner join Users on Bills.paidby=Users.id where paidgid=${gid} GROUP BY Users.id;`;
+    sqlQuery = `select Users.id,Users.uname,Users.photo1,sum(Bills.amn) as groupTotalExpense,(select sum(amn) from Bills where paidgid=? and paidby=?) as myTotalExpense from Bills inner join Users on Bills.paidby=Users.id where paidgid=? GROUP BY Users.id;`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gid, user,gid ], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -186,9 +186,9 @@ exports.groupdetail = async (req, res, next) => {
 
     const totalExpenseWithMy = await promise;
 
-    sqlQuery = `select Users.uname, Users.email, Users.contact, Users.contact, Users.photo1, Bills.id, category, disc, paidby, amn,Bills.Created_at from Bills inner join Users on Bills.paidby=Users.id where Bills.paidgid=${gid};`;
+    sqlQuery = `select Users.uname, Users.email, Users.contact, Users.contact, Users.photo1, Bills.id, category, disc, paidby, amn,Bills.Created_at from Bills inner join Users on Bills.paidby=Users.id where Bills.paidgid= ? ;`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gid], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -196,9 +196,9 @@ exports.groupdetail = async (req, res, next) => {
 
     const billHistory = await promise;
 
-    sqlQuery = `select u.id,u.uname,u.email,u.contact,u.photo1,sum(distinct(Ubills.splitamount)) as owe from Ubills  inner join Users on Ubills.userid = Users.id inner join Users u on Ubills.paidto=u.id where groupid=${gid} and paid=false and userid=${user}  group by Ubills.paidto;`;
+    sqlQuery = `select u.id,u.uname,u.email,u.contact,u.photo1,sum(distinct(Ubills.splitamount)) as owe from Ubills  inner join Users on Ubills.userid = Users.id inner join Users u on Ubills.paidto=u.id where groupid=? and paid=false and userid=?  group by Ubills.paidto;`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gid,user], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -206,9 +206,9 @@ exports.groupdetail = async (req, res, next) => {
 
     const oweData = await promise;
 
-    sqlQuery = `select Users.id,Users.uname,Users.email,Users.contact,Users.photo1,sum(distinct(splitamount)) as lent from Ubills inner join Users on Ubills.userid = Users.id where groupid=${gid} and paidto=${user} and paid=false group by userid;`;
+    sqlQuery = `select Users.id,Users.uname,Users.email,Users.contact,Users.photo1,sum(distinct(splitamount)) as lent from Ubills inner join Users on Ubills.userid = Users.id where groupid=? and paidto=? and paid=false group by userid;`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gid,user ] (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -270,9 +270,9 @@ exports.addmember = async (req, res, next) => {
       throw Error("Please Enter User ID properly");
     }
 
-    let sqlQuery = `select uname,email, contact, gender,photo1,id  from Users where email="${newuser}"`;
+    let sqlQuery = `select uname,email, contact, gender,photo1,id  from Users where email=?`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[newuser], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -284,9 +284,9 @@ exports.addmember = async (req, res, next) => {
       throw Error("User Does not exist. Please enter vaild user name !");
     }
 
-    sqlQuery = `select * from User_groups where uid=${result[0].id} AND gid=${gid} `;
+    sqlQuery = `select * from User_groups where uid=? AND gid=? `;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[result[0].id, gid], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -298,9 +298,9 @@ exports.addmember = async (req, res, next) => {
       throw Error("User is already the member of this group !");
     }
 
-    sqlQuery = `insert into User_groups(uid,gid)values (${result[0].id},${gid});`;
+    sqlQuery = `insert into User_groups(uid,gid)values (?,?);`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[result[0].id,gid], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -372,10 +372,10 @@ exports.addexpense = async (req, res, next) => {
     const mainresult = await promise;
     // console.log("main", mainresult);
 
-    sqlQuery = `select Users.uname, Users.email, Users.contact, Users.contact, Users.photo1, Bills.id, category, disc, paidby, amn,Bills.Created_at from Bills inner join Users on Bills.paidby=Users.id where Bills.paidgid=${gid} AND Bills.id = ${bill_id}`;
+    sqlQuery = `select Users.uname, Users.email, Users.contact, Users.contact, Users.photo1, Bills.id, category, disc, paidby, amn,Bills.Created_at from Bills inner join Users on Bills.paidby=Users.id where Bills.paidgid=? AND Bills.id = ?`;
 
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[gid, bill_id], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
