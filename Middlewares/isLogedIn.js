@@ -17,9 +17,9 @@ const isLogedIn = async (req, res, next) => {
 
     const decoded = await jwt.verify(token, process.env.JWT_SECRET);
 
-    let sqlQuery = `select id,uname,email,contact,photo1 from Users where email="${decoded.email}"`;
+    let sqlQuery = `select id,uname,email,contact,photo1 from Users where email=?`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery,[decoded.email], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
