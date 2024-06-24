@@ -14,6 +14,8 @@ const option = {
 try {
   const pool = mysql.createPool(option);
   module.exports = pool;
+  console.log("DB connected on ", process.env.DB_PORT, " ", process.env.DB_HOST);
+  
 } catch (err) {
   console.log("ERROR FROM DB_CONFIG :: ", err.message);
   console.log(err);
