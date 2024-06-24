@@ -208,7 +208,7 @@ exports.groupdetail = async (req, res, next) => {
 
     sqlQuery = `select Users.id,Users.uname,Users.email,Users.contact,Users.photo1,sum(distinct(splitamount)) as lent from Ubills inner join Users on Ubills.userid = Users.id where groupid=? and paidto=? and paid=false group by userid;`;
     promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery,[gid,user ] (err, result) => {
+      dbconnection.query(sqlQuery,[gid,user ], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
