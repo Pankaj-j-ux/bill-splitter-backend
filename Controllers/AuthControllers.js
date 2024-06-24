@@ -13,9 +13,9 @@ exports.signup = async (req, res, next) => {
       throw Error("Credentials missing");
     }
 
-    let sqlQuery = `select uname,email from Users where email="${email}"`;
+    let sqlQuery = `select uname,email from Users where email= ?`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery, [email], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -41,7 +41,7 @@ exports.signup = async (req, res, next) => {
     const sqlQuery1 = `INSERT INTO Users SET ?`;
 
     const promise1 = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery1, user, (err, result) => {
+      dbconnection.query(sqlQuery1, [user], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
@@ -77,9 +77,9 @@ exports.login = async (req, res, next) => {
       throw Error("credentials missing");
     }
 
-    let sqlQuery = `select * from Users where email="${email}"`;
+    let sqlQuery = `select * from Users where email= ?`;
     let promise = new Promise((resolve, reject) => {
-      dbconnection.query(sqlQuery, (err, result) => {
+      dbconnection.query(sqlQuery, [email], (err, result) => {
         if (err) reject(err);
         else resolve(result);
       });
