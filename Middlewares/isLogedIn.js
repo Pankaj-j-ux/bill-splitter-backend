@@ -40,7 +40,7 @@ const isLogedIn = async (req, res, next) => {
 
     res.status(500).json({
       success: false,
-      msg: "FAIL",
+      msg: err.message,
       post: process.env.DB_HOST,
    });
   }
