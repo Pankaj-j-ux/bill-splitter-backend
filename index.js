@@ -26,6 +26,8 @@ app.get("/", (req, res) => {
   res.status(200).json({
     success: true,
     msg: "You'r Welcome !",
+    port: process.env.DB_PORT,
+    host: process.env.DB_HOST
   });
 });
 
