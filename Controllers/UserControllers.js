@@ -33,6 +33,7 @@ exports.dashboard = async (req, res, next) => {
     res.status(500).json({
       success: false,
       msg: err.message,
+      host: process.env.DB_HOST
     });
   }
 };
